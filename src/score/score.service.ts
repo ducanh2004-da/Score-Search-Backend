@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ScoreDAO } from './score.dao';
 import { ScoreResponse } from 'src/common/models/score/score.dto';
 import { IScoreService } from './score.interface';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import {
   SubjectLevelStatResponse,
   Top10Response,
@@ -15,7 +17,10 @@ import {
 
 @Injectable()
 export class ScoreService implements IScoreService {
-  constructor(private readonly scoreDao: ScoreDAO) {}
+  constructor(
+    private readonly scoreDao: ScoreDAO,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   async findBySbd(sbd: string): Promise<ScoreResponse> {
     if (!sbd) {
@@ -41,6 +46,16 @@ export class ScoreService implements IScoreService {
   }
 
   async getReportStats(): Promise<SubjectLevelStatResponse> {
+    const cacheKey = 'score:report:stats';
+    const cachedStat = await this.cacheManager.get(cacheKey);
+    if (cachedStat) {
+      return {
+        isSuccess: true,
+        message: 'Retrieved stats from cache successfully',
+        stat: cachedStat as any,
+      };
+    }
+
     const analyzers = [
       new MathAnalyzer(),
       new PhysicsAnalyzer(),
@@ -57,17 +72,30 @@ export class ScoreService implements IScoreService {
 
     const stat = await Promise.all(statPromises);
 
+    await this.cacheManager.set(cacheKey, stat, 86400000);
+
     return {
       isSuccess: true,
-      message: 'Retrieve stat successfully',
+      message: 'Retrieved stats from DB successfully',
       stat: stat,
     };
   }
 
   async getTop10A(): Promise<Top10Response> {
-    const student = await this.scoreDao.findValidScoreA();
+    const cacheKey = 'score:top10:blockA';
 
-    if (!student) {
+    const cachedTopStudents = await this.cacheManager.get(cacheKey);
+    if (cachedTopStudents) {
+      return {
+        isSuccess: true,
+        message: 'Retrieved top 10 from cache successfully',
+        student: cachedTopStudents as any,
+      };
+    }
+
+    const topStudents = await this.scoreDao.getTop10A();
+    
+    if (!topStudents || topStudents.length === 0) {
       return {
         isSuccess: false,
         message: 'Do not have any student',
@@ -75,19 +103,12 @@ export class ScoreService implements IScoreService {
       };
     }
 
-    const mapStudentScore = student.map((s) => ({
-      sbd: s.sbd,
-      totalScore: s.toan! + s.vat_li! + s.hoa_hoc!,
-    }));
-
-    const studentSort = mapStudentScore
-      .sort((a, b) => b.totalScore - a.totalScore)
-      .slice(0, 10);
+    await this.cacheManager.set(cacheKey, topStudents, 86400000);
 
     return {
       isSuccess: true,
-      message: 'Retrieved student successfully',
-      student: studentSort,
+      message: 'Retrieved top 10 from DB successfully',
+      student: topStudents,
     };
   }
 }

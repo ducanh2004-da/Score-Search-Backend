@@ -11,10 +11,13 @@ import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl';
 const depthLimit = require('graphql-depth-limit');
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    PrismaModule, 
+    PrismaModule,
     ScoreModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -24,14 +27,14 @@ const depthLimit = require('graphql-depth-limit');
       introspection: true,
       playground: false,
       csrfPrevention: false,
-      
+
       plugins: [
-        ApolloServerPluginLandingPageLocalDefault(),        
+        ApolloServerPluginLandingPageLocalDefault(),
         ApolloServerPluginCacheControl({ defaultMaxAge: 1800 }),
       ],
       validationRules: [
         depthLimit(parseInt(process.env.MAX_QUERY_DEPTH || '11'), {
-          ignore: [/IntrospectionQuery/, /__schema/], 
+          ignore: [/IntrospectionQuery/, /__schema/],
         }),
       ],
       subscriptions: {
@@ -40,7 +43,6 @@ const depthLimit = require('graphql-depth-limit');
       },
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => {
-
         console.error('GraphQL Error:', {
           message: error.message,
           code: error.extensions?.code,
@@ -58,6 +60,19 @@ const depthLimit = require('graphql-depth-limit');
         return error;
       },
     }),
+    // ========================================
+    // CACHE MODULE (REDIS)
+    // ========================================
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        url: configService.get<string>('REDIS_URL') || process.env.REDIS_URL,
+        ttl: 600,
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -65,7 +80,7 @@ const depthLimit = require('graphql-depth-limit');
     {
       provide: APP_FILTER,
       useClass: GqlGlobalExceptionFilter,
-    }
+    },
   ],
 })
 export class AppModule {}
