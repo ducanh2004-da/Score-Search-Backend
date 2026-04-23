@@ -1,0 +1,44 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Score {
+  sbd: String!
+  toan: Float
+  ngu_van: Float
+  ngoai_ngu: Float
+  vat_li: Float
+  hoa_hoc: Float
+  sinh_hoc: Float
+  lich_su: Float
+  dia_li: Float
+  gdcd: Float
+  ma_ngoai_ngu: String
+}
+
+type ScoreResponse {
+  isSuccess: Boolean!
+  message: String!
+  score: [Score!]!
+}
+
+type TopStudentGroupA {
+  sbd: String!
+  totalScore: Float!
+}
+
+type Top10Response {
+  isSuccess: Boolean!
+  message: String!
+  student: [TopStudentGroupA!]!
+}
+
+type Query {
+  getScore: String!
+  getScoreBySbd(data: SearchScore!): ScoreResponse!
+  getTop10GroupA: Top10Response!
+}
+
+input SearchScore {
+  sbd: String!
+}

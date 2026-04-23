@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Score {
+  sbd          String  @id @db.VarChar(10)
+  toan         Float?
+  ngu_van      Float?
+  ngoai_ngu    Float?
+  vat_li       Float?
+  hoa_hoc      Float?
+  sinh_hoc     Float?
+  lich_su      Float?
+  dia_li       Float?
+  gdcd         Float?
+  ma_ngoai_ngu String? @db.VarChar(5)
+
+  @@map("scores")
+}
