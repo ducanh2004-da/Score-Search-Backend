@@ -9,7 +9,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     const pool = new Pool({ 
       connectionString: process.env.DATABASE_URL,
-      // Bật lại SSL nhưng bỏ qua việc kiểm tra chứng chỉ khắt khe
       ssl: {
         rejectUnauthorized: false, 
       }

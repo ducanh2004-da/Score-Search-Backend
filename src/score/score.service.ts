@@ -48,14 +48,10 @@ export class ScoreService implements IScoreService {
       new LiteratureAnalyzer(),
     ];
 
-    // Dùng Promise.all để thực thi các lệnh đếm trên DB đồng thời
     const statPromises = analyzers.map(async (analyzer) => {
-      // 1. Lấy tên cột (ví dụ: 'toan') và nhờ DAO đếm trong DB
       const rawStat = await this.scoreDao.getSubjectLevelStats(
         analyzer.subjectDbColumn,
       );
-
-      // 2. Đưa kết quả thô vào class OOP để format
       return analyzer.analyze(rawStat);
     });
 
