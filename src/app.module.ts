@@ -40,7 +40,7 @@ const depthLimit = require('graphql-depth-limit');
       },
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => {
-        // Log error details
+
         console.error('GraphQL Error:', {
           message: error.message,
           code: error.extensions?.code,

@@ -41,15 +41,15 @@ export class GqlGlobalExceptionFilter implements GqlExceptionFilter {
     }
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      let customMessage = 'Lỗi thao tác cơ sở dữ liệu';
+      let customMessage = 'Error when accessing database.';
       let code = 'PRISMA_ERROR';
 
       if (exception.code === 'P2002') {
-        customMessage = 'Dữ liệu này đã tồn tại trong hệ thống (Trùng lặp).';
+        customMessage = 'There are the same data in database.';
         code = 'DUPLICATE_DATA';
       }
       else if (exception.code === 'P2025') {
-        customMessage = 'Không tìm thấy dữ liệu yêu cầu.';
+        customMessage = 'Can not find the data.';
         code = 'RECORD_NOT_FOUND';
       }
 
@@ -63,7 +63,7 @@ export class GqlGlobalExceptionFilter implements GqlExceptionFilter {
       const axiosError = exception as any;
       const apiResponseData = axiosError.response?.data || axiosError.message; 
       
-      return new GraphQLError(`Lỗi gọi AI API: ${axiosError.message}`, {
+      return new GraphQLError(`Error in calling API: ${axiosError.message}`, {
         extensions: {
           code: 'BAD_GATEWAY',
           aiResponse: apiResponseData, 
@@ -71,7 +71,7 @@ export class GqlGlobalExceptionFilter implements GqlExceptionFilter {
       });
     }
 
-    console.error('============ LỖI GỐC CHƯA BẮT ĐƯỢC ============');
+    console.error('============ Other error ============');
     console.error(exception);
     
     const errorMessage = exception instanceof Error ? exception.message : 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau!';

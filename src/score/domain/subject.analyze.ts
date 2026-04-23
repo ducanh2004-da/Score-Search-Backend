@@ -1,13 +1,11 @@
-// subject.analyzer.ts
 import { SubjectLevelStat } from "src/common/models/report/report.dto";
 
 export abstract class SubjectAnalyzer {
   constructor(
-    public readonly subjectDbColumn: string, // Đổi sang public để Service có thể gọi
+    public readonly subjectDbColumn: string, 
     public readonly subjectDisplayName: string
   ) {}
 
-  // Nhận kết quả đã tính toán từ DB và format lại
   public analyze(dbResult: any): SubjectLevelStat {
     return { 
         subject: this.subjectDisplayName, 
