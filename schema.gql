@@ -22,6 +22,20 @@ type ScoreResponse {
   score: [Score!]!
 }
 
+type SubjectLevelStat {
+  subject: String!
+  level1: Int!
+  level2: Int!
+  level3: Int!
+  level4: Int!
+}
+
+type SubjectLevelStatResponse {
+  isSuccess: Boolean!
+  message: String!
+  stat: [SubjectLevelStat!]!
+}
+
 type TopStudentGroupA {
   sbd: String!
   totalScore: Float!
@@ -36,6 +50,7 @@ type Top10Response {
 type Query {
   getScore: String!
   getScoreBySbd(data: SearchScore!): ScoreResponse!
+  getSubjectLevelReport: SubjectLevelStatResponse!
   getTop10GroupA: Top10Response!
 }
 
