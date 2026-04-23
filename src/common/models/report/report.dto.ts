@@ -19,6 +19,18 @@ export class SubjectLevelStat {
 }
 
 @ObjectType()
+export class SubjectLevelStatResponse {
+    @Field(() => Boolean)
+    isSuccess!: boolean;
+
+    @Field(() => String)
+    message!: string;
+
+    @Field(() => [SubjectLevelStat])
+    stat!: SubjectLevelStat[];
+}
+
+@ObjectType()
 export class TopStudentGroupA {
   @Field(() => String)
   sbd!: string;
