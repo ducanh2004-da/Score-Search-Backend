@@ -9,7 +9,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'http://localhost:3000',
       'https://score-search-frontend-tqa5.vercel.app',
-      'https://score-search-backend.onrender.com',
+      'https://score-search-backend-1.onrender.com',
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
